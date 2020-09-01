@@ -5,6 +5,7 @@ declare -i task=1
 logfile="./timer_logfile.txt"
 
 function track {
+  tag=$( tail -n 1 $logfile )
   if [ $# -gt 2 ]; then
     echo $#
     echo "Illegal number of arguments"
@@ -12,9 +13,9 @@ function track {
     echo "label is an optional argument"
     echo "To stop a task: track stop"
     echo "To get status of latest task: track status"
+    echo "To get time spent on finished tasks: track log"
   elif [[ $1 == start ]]; then
     #check if task is currently running
-    tag=$( tail -n 1 $logfile )
     if [[ ${tag/%\ */} == LABEL ]]; then
       echo "A task is currently running"
       echo "track status to see which one"
@@ -34,11 +35,33 @@ function track {
       echo "END $date" >> $logfile
     fi
   elif [[ $1 == status ]]; then
-    tag=$( tail -n 1 $logfile )
     if [[ ${tag/%\ */} == LABEL ]]; then
       echo "Currently tracking task $(echo $tag | awk '{print $5}')"
     else
       echo "You don't have an active task"
     fi
+  elif [[ $1 == log ]]; then
+    declare -i counter=1
+    while [[ $(sed ''${counter}'q;d' $logfile) != "" ]] &&
+    [[ $(sed ''`expr ${counter} + 2`'q;d' $logfile) != "" ]]; do
+      start=$(sed ''${counter}'q;d' $logfile | awk '{print $5}' | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
+      label=$(sed ''`expr ${counter} + 1`'q;d' $logfile | awk '{print $5}')
+      end=$(sed ''`expr ${counter} + 2`'q;d' $logfile | awk '{print $5}' | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
+      diff=`expr $end - $start`
+      logtime $diff $label
+      (( counter=counter+3 ))
+    done
   fi
+}
+
+function logtime {
+  local T=$1
+  local L=$2
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  printf 'Task %d: ' $L
+  printf '%02d:' $H
+  printf '%02d:' $M
+  printf '%02d\n' $S
 }
