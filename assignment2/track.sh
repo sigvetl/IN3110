@@ -1,13 +1,16 @@
 #!/bin/bash
-#source runs script in current environment
 
+#Using $HOME as I could not get ~/.local/share/ to work
+
+if [ ! -e "$HOME/.local/share/timer_logfile.log" ]; then
+  touch "$HOME/.local/share/timer_logfile.log"
+fi
 declare -i task=1
-logfile="./timer_logfile.txt"
+logfile="$HOME/.local/share/timer_logfile.log"
 
 function track {
   tag=$( tail -n 1 $logfile )
   if [ $# -gt 2 ]; then
-    echo $#
     echo "Illegal number of arguments"
     echo "To start a task: track start [label]"
     echo "label is an optional argument"
@@ -40,14 +43,22 @@ function track {
     else
       echo "You don't have an active task"
     fi
+  #I may have misunderstood this task, and I'm not writing the time spent to
+  #the logfile. I'm parsing the logfile and are writing the time spent on the
+  #individual tasks to the user terminal
   elif [[ $1 == log ]]; then
     declare -i counter=1
-    while [[ $(sed ''${counter}'q;d' $logfile) != "" ]] &&
-    [[ $(sed ''`expr ${counter} + 2`'q;d' $logfile) != "" ]]; do
+    #check if third line of task is empty
+    while [[ $(sed ''`expr ${counter} + 2`'q;d' $logfile) != "" ]]; do
+      #fetch all lines related to task
       start=$(sed ''${counter}'q;d' $logfile | awk '{print $5}' | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
       label=$(sed ''`expr ${counter} + 1`'q;d' $logfile | awk '{print $5}')
       end=$(sed ''`expr ${counter} + 2`'q;d' $logfile | awk '{print $5}' | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
       diff=`expr $end - $start`
+      #stupid solution to tasks starting and ending on different days
+      if [[ diff -lt 0 ]]; then
+        (( diff=diff+86400 ))
+      fi
       logtime $diff $label
       (( counter=counter+3 ))
     done
@@ -60,7 +71,14 @@ function logtime {
   local H=$((T/60/60%24))
   local M=$((T/60%60))
   local S=$((T%60))
-  printf 'Task %d: ' $L
+  #usage of printf to avoid newline
+  #checking if value is number or string
+  re='^[0-9]+$'
+  if ! [[ $L =~ $re ]]; then
+    printf 'Task %s: ' $L
+  else
+    printf 'Task %d: ' $L
+  fi
   printf '%02d:' $H
   printf '%02d:' $M
   printf '%02d\n' $S
