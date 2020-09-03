@@ -36,6 +36,7 @@ function move {
   echo "Do you want to move all files or .txt files?\nall/txt"
   read input
 
+  #could also accept all kinds of input and move files with user-submitted extention
   while [ $input != txt ] && [ $input != all ]; do
     echo "Do you want to move all files or .txt files?\nall/txt"
     read input
