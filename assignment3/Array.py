@@ -12,7 +12,7 @@ class Array:
         elif isinstance(values[0], bool):
             type = bool
         if self.shape != len(values):
-            raise ValueError("Shape is not equal to number of values")
+                raise ValueError("Shape is not equal to number of values")
         for i in values:
             if not isinstance(i, type):
                 raise ValueError("Values are not of same type")
@@ -56,8 +56,9 @@ class Array:
                 return "NotImplemented"
         else:
             return "NotImplemented"
-
-        return newArray
+        shapeTuple = (self.shape,)
+        returnArray = Array(shapeTuple, *newArray)
+        return returnArray
         """Element-wise adds Array with another Array or number.
         If the method does not support the operation with the supplied arguments
         (specific data type or shape), it should return NotImplemented.
@@ -91,7 +92,9 @@ class Array:
                 return "NotImplemented"
         else:
             return "NotImplemented"
-        return newArray
+        shapeTuple = (self.shape,)
+        returnArray = Array(shapeTuple, *newArray)
+        return returnArray
         """Element-wise subtracts an Array or number from this Array.
         If the method does not support the operation with the supplied arguments
         (specific data type or shape), it should return NotImplemented.
@@ -126,9 +129,9 @@ class Array:
                 return "NotImplemented"
         else:
             return "NotImplemented"
-
-
-        return newArray
+        shapeTuple = (self.shape,)
+        returnArray = Array(shapeTuple, *newArray)
+        return returnArray
         """Element-wise multiplies this Array with a number or array.
         If the method does not support the operation with the supplied arguments
         (specific data type or shape), it should return NotImplemented.
@@ -174,7 +177,6 @@ class Array:
                     newArray.append(False)
                 else:
                     newArray.append(True)
-            return newArray
         elif isinstance(other, Array):
             if len(self.array) == len(other.array):
                 for i in range(len(self.array)):
@@ -182,9 +184,11 @@ class Array:
                         newArray.append(False)
                     else:
                         newArray.append(True)
-                return newArray
             else:
                 return False
+        shapeTuple = (self.shape,)
+        returnArray = Array(shapeTuple, *newArray)
+        return returnArray
         """Compares an Array element-wise with another Array or number.
         If `other` is an array and the two array shapes do not match, this method should raise ValueError.
         Args:
@@ -220,7 +224,6 @@ class Array:
         Returns:
             float: The mean of the array values.
         """
-        pass
 
     def min_element(self):
         min = self.array[0]
@@ -233,4 +236,3 @@ class Array:
         Returns:
             float: The value of the smallest element in the array.
         """
-        pass
