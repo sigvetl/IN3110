@@ -12,8 +12,6 @@ failarray = Array(shape2, 4, 4, 5, 3, 9)
 test2d = Array(shape2d, 3, 5, 1, 5, 6, 6)
 test2d2 = Array(shape2d, 3, 5, -10, 5, 0, 5)
 
-
-
 #print-test
 def test_print():
     assert testArray.__str__() == "[1, 2, 3, 4]"
@@ -27,7 +25,8 @@ def test_print_2d():
 def test_add_element():
     assert testArray.__add__(5) == Array((4,), 6, 7, 8, 9)
     assert testArray.__add__(3) == Array((4,), 4, 5, 6, 7)
-
+    assert 5+testArray == Array((4,), 6, 7, 8, 9)
+    assert testArray+5 == Array((4,), 6, 7, 8, 9)
 
 #tests for adding array to array
 def test_add_array():
