@@ -1,7 +1,14 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
-    name='Instapy',
+    name='instapy',
     version='1.0',
-    packages=['instapy']
+    description='A package that applies filters to images',
+    packages=['instapy'],
+    scripts=['bin/instapy']
+    #entry_points={
+    #    'console_scripts': ['instapy=bin.instapy:main'],
+    #}
+
+
 )

@@ -9,7 +9,7 @@ which implementation to use. If no argument is given, using numpy.
 Checking if input_filename is an array or a file for testing purposes.
 Otherwise same functionality as in toGray
 """
-def grayscale_image(input_filename, output_filename=None, implementation=None):
+def grayscale_image(input_filename, output_filename=None, implementation=None, scale=None):
     if implementation == 'python':
         py_gray = python_gray(input_filename, output_filename)
         return py_gray
@@ -22,6 +22,8 @@ def grayscale_image(input_filename, output_filename=None, implementation=None):
         else:
             image = cv2.imread(input_filename)
 
+        if scale != 100:
+            image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
         grayscale_img = np.copy(image)
         grayscale_img = grayscale_img.astype('float64')
         red = 0.21
