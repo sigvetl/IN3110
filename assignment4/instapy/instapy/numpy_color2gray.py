@@ -27,7 +27,7 @@ def grayscale_image(input_filename, output_filename=None, implementation=None, s
 
         if scale != None:
             image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
-
+            
         grayscale_img = np.copy(image)
         grayscale_img = grayscale_img.astype('float64')
         red = 0.21

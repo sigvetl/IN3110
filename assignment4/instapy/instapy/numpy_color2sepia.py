@@ -30,7 +30,6 @@ def sepia_image(input_filename, output_filename=None, implementation=None, scale
         if scale != None:
             image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
 
-        #ERROR CHECK
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         img = np.zeros(image.shape)
