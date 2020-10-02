@@ -11,10 +11,10 @@ Otherwise same functionality as in toSepia
 """
 def sepia_image(input_filename, output_filename=None, implementation=None, scale=None):
     if implementation == 'python':
-        py_sep = python_sepia(input_filename, output_filename)
+        py_sep = python_sepia(input_filename, output_filename, scale)
         return py_sep
     elif implementation == 'numba':
-        numb_sep = numba_sepia(input_filename, output_filename)
+        numb_sep = numba_sepia(input_filename, output_filename, scale)
         return numb_sep
     else:
         sepia = np.array([[0.393, 0.769, 0.189],
@@ -24,12 +24,12 @@ def sepia_image(input_filename, output_filename=None, implementation=None, scale
             image = input_filename
         else:
             image = cv2.imread(input_filename)
-        if scale != 100:
-            if scale < 1 or scale > 200:
-                print("Scale must be in interval 1 - 200.")
-                return
-            else:
-                image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
+        if image is None:
+            raise Exception("Not a valid picture")
+
+        if scale != None:
+            image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
+
         #ERROR CHECK
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -39,6 +39,7 @@ def sepia_image(input_filename, output_filename=None, implementation=None, scale
         img[:,:,2] = image.dot(sepia[2,:])
         img = np.clip(img, 0, 255)
         img = img.astype("uint8")
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         if output_filename != None:
             cv2.imwrite(output_filename, img)
         return img

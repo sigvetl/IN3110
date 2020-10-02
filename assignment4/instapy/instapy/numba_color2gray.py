@@ -7,11 +7,16 @@ Function is split into main- and helper-function to ensure checking and saving
 of image is possible. These are cheap operations that does not to a significant
 degree influence the running time of the function.
 """
-def grayscale_image(input_filename, output_filename=None):
+def grayscale_image(input_filename, output_filename=None, scale=None):
     if type(input_filename).__module__ == 'numpy':
         image = input_filename
     else:
         image = cv2.imread(input_filename)
+    if image is None:
+        raise Exception("Not a valid picture")
+
+    if scale != None:
+        image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
     gray_image = numba_color2gray(image)
     gray_image = gray_image.astype("uint8")
     if output_filename != None:

@@ -11,10 +11,10 @@ Otherwise same functionality as in toGray
 """
 def grayscale_image(input_filename, output_filename=None, implementation=None, scale=None):
     if implementation == 'python':
-        py_gray = python_gray(input_filename, output_filename)
+        py_gray = python_gray(input_filename, output_filename, scale)
         return py_gray
     elif implementation == 'numba':
-        numb_gray = numba_gray(input_filename, output_filename)
+        numb_gray = numba_gray(input_filename, output_filename, scale)
         return numb_gray
     else:
         if type(input_filename).__module__ == 'numpy':
@@ -22,8 +22,12 @@ def grayscale_image(input_filename, output_filename=None, implementation=None, s
         else:
             image = cv2.imread(input_filename)
 
-        if scale != 100:
+        if image is None:
+            raise Exception("Not a valid picture")
+
+        if scale != None:
             image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
+
         grayscale_img = np.copy(image)
         grayscale_img = grayscale_img.astype('float64')
         red = 0.21

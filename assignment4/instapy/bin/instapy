@@ -13,18 +13,19 @@ optional.add_argument(
     '--help',
     action='help',
     default=SUPPRESS,
-    help='Show this message.'
+    help='Show this message and exit.'
 )
 
 required.add_argument('-f', '--file', help='The filename to apply filter to.', required=True)
-
 filter = required.add_mutually_exclusive_group(required=True)
 filter.add_argument('-se', '--sepia', action='store_true', help='select sepia filter.')
 filter.add_argument('-g', '--gray', action='store_true', help='select gray filter.')
 optional.add_argument('-sc', '--scale', type=int, help='Scale factor to resize image in % of original size', default=100)
 optional.add_argument('-i', '--implement', metavar='{python, numba, numpy}', help='Choose the implementation')
 optional.add_argument('-o', '--out', type=str, help='The output filename', default=None)
+
 args = parser.parse_args()
+
 
 if __name__ == '__main__':
     if args.sepia:

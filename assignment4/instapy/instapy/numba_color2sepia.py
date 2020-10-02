@@ -12,14 +12,20 @@ Function is split into main- and helper-function to ensure checking and saving
 of image is possible. These are cheap operations that does not to a significant
 degree influence the running time of the function.
 """
-def sepia_image(input_filename, output_filename=None):
+def sepia_image(input_filename, output_filename=None, scale=None):
     if type(input_filename).__module__ == 'numpy':
         image = input_filename
     else:
         image = cv2.imread(input_filename)
+    if image is None:
+        raise Exception("Not a valid picture")
+
+    if scale != None:
+        image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     sepia_image = color2sepia(image, matrise)
     sepia_image = sepia_image.astype("uint8")
+    sepia_image = cv2.cvtColor(sepia_image, cv2.COLOR_RGB2BGR)
     if output_filename != None:
         cv2.imwrite(output_filename, sepia_image)
     return sepia_image

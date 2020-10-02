@@ -6,11 +6,17 @@ import numpy as np
 Including check for input filename to ensure there is not created a new array
 if the input is already a numpy array. If output_filename is given, saving file.
 """
-def grayscale_image(input_filename, output_filename=None):
+def grayscale_image(input_filename, output_filename=None, scale=None):
     if type(input_filename).__module__ == 'numpy':
         image = input_filename
     else:
         image = cv2.imread(input_filename)
+
+    if image is None:
+        raise Exception("Not a valid picture")
+
+    if scale != None:
+        image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
     grayscale_img = np.zeros(image.shape)
     red = 0.21
     green = 0.72
