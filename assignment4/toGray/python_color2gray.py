@@ -4,6 +4,8 @@ import numpy as np
 
 filename = "rain.jpg"
 image = cv2.imread(filename)
+if image is None:
+    raise Exception("Not a valid picture")
 
 """
 creating an empty numpy-array with np.zeros with same shape as the image.
