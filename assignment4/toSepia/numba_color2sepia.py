@@ -5,7 +5,8 @@ import numpy as np
 
 filename = "rain.jpg"
 image = cv2.imread(filename)
-
+if image is None:
+    raise Exception("Not a valid picture")
 #cv2 is BGR - the matrix is RGB
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 matrise = np.array([[0.393, 0.769, 0.189],
@@ -36,6 +37,7 @@ def color2sepia(image, matrix):
 time1_py = time.time()
 sepia_img = color2sepia(image, matrise)
 sepia_img = sepia_img.astype("uint8")
+sepia_img = cv2.cvtColor(sepia_img, cv2.COLOR_RGB2BGR)
 cv2.imwrite('rain_sepia_numba.jpeg', sepia_img)
 time2_py = time.time()
 exec = time2_py-time1_py
@@ -44,6 +46,7 @@ print(exec)
 time1_py = time.time()
 sepia_img = color2sepia(image, matrise)
 sepia_img = sepia_img.astype("uint8")
+sepia_img = cv2.cvtColor(sepia_img, cv2.COLOR_RGB2BGR)
 cv2.imwrite('rain_sepia_numba.jpeg', sepia_img)
 time2_py = time.time()
 exec = time2_py-time1_py
@@ -52,6 +55,7 @@ print(exec)
 time1_py = time.time()
 sepia_img = color2sepia(image, matrise)
 sepia_img = sepia_img.astype("uint8")
+sepia_img = cv2.cvtColor(sepia_img, cv2.COLOR_RGB2BGR)
 cv2.imwrite('rain_sepia_numba.jpeg', sepia_img)
 time2_py = time.time()
 exec = time2_py-time1_py

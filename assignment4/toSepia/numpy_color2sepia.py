@@ -4,6 +4,8 @@ import numpy as np
 
 filename = "rain.jpg"
 image = cv2.imread(filename)
+if image is None:
+    raise Exception("Not a valid picture")
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 sepia_matrix = [[0.393, 0.769, 0.189],
                 [0.349, 0.686, 0.168],
@@ -22,6 +24,7 @@ def numpy_color2sepia(image, matrix):
     img[:,:,2] = image.dot(matrix[2,:])
     img = np.clip(img, 0, 255)
     img = img.astype("uint8")
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     cv2.imwrite('rain_sepia_num.jpeg', img)
     return img
 
