@@ -52,5 +52,5 @@ def runtime():
     return time2_py-time1_py
 
 print(runtime())
-# print(runtime())
-# print(runtime())
+print(runtime())
+print(runtime())
