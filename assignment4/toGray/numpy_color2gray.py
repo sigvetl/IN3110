@@ -7,12 +7,17 @@ image = cv2.imread(filename)
 if image is None:
     raise Exception("Not a valid picture")
 
-"""
-creating a copy of the image-array with numpy.zeros. creating a one-dimensional array
-to hold the weights and slicing to create the dot product of the pixel values and the values with each weight.
-again casting to uint8, writing to file and returning.
-"""
+
+#A standard for docstrings is to include information about arguments and return values if there are any
 def numpy_color2gray(img):
+    """
+    creating a copy of the image-array with numpy.zeros. creating a one-dimensional array
+    to hold the weights and slicing to create the dot product of the pixel values and the values with each weight.
+    again casting to uint8, writing to file and returning.
+
+    Args:
+        img (numpy ndarray): a 3 dimensional array containing the pixel values of the colored image
+    """
     grayscale_img = np.zeros(img.shape)
     red = 0.21
     green = 0.72
@@ -24,20 +29,21 @@ def numpy_color2gray(img):
     grayscale_img = grayscale_img.astype("uint8")
     cv2.imwrite('rain_grayscale_num.jpeg', grayscale_img)
 
-time1_num = time.time()
-grayscale = numpy_color2gray(image)
-time2_num = time.time()
-exec_num = time2_num-time1_num
-print(exec_num)
 
-time1_num = time.time()
-grayscale = numpy_color2gray(image)
-time2_num = time.time()
-exec_num = time2_num-time1_num
-print(exec_num)
 
-time1_num = time.time()
-grayscale = numpy_color2gray(image)
-time2_num = time.time()
-exec_num = time2_num-time1_num
-print(exec_num)
+#To avoid duplicate code when timing the run time you can have a timing-function
+def runtime():
+    """
+    Times the runtime of the function numpy_color2gray
+
+    Returns:
+        time2_num-time1_num (float): the time taken to run the function
+    """
+    time1_num = time.time()
+    grayscale = numpy_color2gray(image)
+    time2_num = time.time()
+    return time2_num-time1_num
+
+print(runtime())
+print(runtime())
+print(runtime())
