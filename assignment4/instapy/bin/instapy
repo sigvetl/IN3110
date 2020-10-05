@@ -2,29 +2,33 @@
 
 from instapy.numpy_color2sepia import sepia_image
 from instapy.numpy_color2gray import grayscale_image
-from argparse import ArgumentParser, SUPPRESS
+from argparse import ArgumentParser
 
-parser = ArgumentParser(add_help=False)
-required = parser.add_argument_group('required arguments')
-optional = parser.add_argument_group('optional arguments')
 
-optional.add_argument(
-    '-h',
-    '--help',
-    action='help',
-    default=SUPPRESS,
-    help='Show this message and exit.'
-)
+    # optional.add_argument(
+    #     '-h',
+    #     '--help',
+    #     action='help',
+    #     default=SUPPRESS,
+    #     help='Show this message and exit.'
+    # )
+    # The --help flag is a alreday defined/built-in flag, so instead of suppressing it and
+    # making your own help flag you can just make use of the one that already exists.
 
-required.add_argument('-f', '--file', help='The filename to apply filter to.', required=True)
-filter = required.add_mutually_exclusive_group(required=True)
-filter.add_argument('-se', '--sepia', action='store_true', help='select sepia filter.')
-filter.add_argument('-g', '--gray', action='store_true', help='select gray filter.')
-optional.add_argument('-sc', '--scale', type=int, help='Scale factor to resize image in % of original size', default=100)
-optional.add_argument('-i', '--implement', metavar='{python, numba, numpy}', help='Choose the implementation')
-optional.add_argument('-o', '--out', type=str, help='The output filename', default=None)
+parser = ArgumentParser()
+#Reduced amount of groups to just one, makes the code a little cleaner
+required = parser.add_mutually_exclusive_group(required=True)
+#Using the help flag which already exists - made own help comments for each flag with help=""
+parser.add_argument("-f", "--file", required=True, help="The filename to apply filter to.")
+required.add_argument('-se', '--sepia', action="store_true", help="Select sepia filter.")
+required.add_argument('-g', '--gray', action="store_true", help="Select gray filter.")
+# The reason the already built in help flag kept giving error is because you had the % symbol in the string - this was interpreted as an operator
+parser.add_argument('-sc', '--scale', type=int, default=100, help="Scale factor to resize image in percent of original size")
+parser.add_argument('-i', '--implement', metavar='{python, numba, numpy}', help="Choose the implementation")
+parser.add_argument('-o', '--out', type=str, help='The output filename', default=None)
 
 args = parser.parse_args()
+
 
 
 if __name__ == '__main__':
