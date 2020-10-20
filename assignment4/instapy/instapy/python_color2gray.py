@@ -2,11 +2,28 @@ import cv2
 import time
 import numpy as np
 
-"""
-Including check for input filename to ensure there is not created a new array
-if the input is already a numpy array. If output_filename is given, saving file.
-"""
+
 def grayscale_image(input_filename, output_filename=None, scale=None):
+    """
+    creating an empty numpy-array with np.zeros with same shape as the image.
+    If scale given then resizing to % given.
+    looping over the indexes in the original array and adding the value times the weight
+    to the newly created array. casting to uint8 and storing. time-tracking using time.time().
+    If output_filename is given then saving file.
+
+    Args:
+        input_filename (string): name of image file to be filtered
+        output_filename (string): name of filtered image to be saved. If None then filtered image will not be saved
+        scale (int): Scale factor to resize image in % of original size. If None then default is 100%
+
+    Returns:
+        grayscale_img (numpy ndarray): 3 dimensional array containing the grayscale pixel values as ints
+    """
+
+    """
+    Including check for input filename to ensure there is not created a new array
+    if the input is already a numpy array.
+    """
     if type(input_filename).__module__ == 'numpy':
         image = input_filename
     else:
