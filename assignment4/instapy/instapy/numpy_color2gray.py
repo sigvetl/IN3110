@@ -3,13 +3,24 @@ import numpy as np
 from instapy.python_color2gray import grayscale_image as python_gray
 from instapy.numba_color2gray import grayscale_image as numba_gray
 
-"""
-Main implementation of grayscale_image. Takes an additional argument to determine
-which implementation to use. If no argument is given, using numpy.
-Checking if input_filename is an array or a file for testing purposes.
-Otherwise same functionality as in toGray
-"""
+
 def grayscale_image(input_filename, output_filename=None, implementation=None, scale=None):
+    """
+    Main implementation of grayscale_image. Takes an additional argument to determine
+    which implementation to use. If no argument is given, using numpy.
+    Checking if input_filename is an array or a file for testing purposes.
+    Otherwise same functionality as in toGray
+
+    Args:
+        input_filename (string): name of image file to be filtered
+        output_filename (string): name of filtered image to be saved. If None then filtered image will not be saved
+        implementation (string): choice of implementation - either python, numpy or numba
+        scale (int): Scale factor to resize image in % of original size. If None then default is 100%
+
+    Returns:
+        grayscale_img (numpy ndarray): 3 dimensional array containing the grayscale pixel values as ints
+    """
+
     if implementation == 'python':
         py_gray = python_gray(input_filename, output_filename, scale)
         return py_gray
@@ -27,7 +38,7 @@ def grayscale_image(input_filename, output_filename=None, implementation=None, s
 
         if scale != None:
             image = cv2.resize(image, (0,0), fx=(scale/100), fy=(scale/100))
-            
+
         grayscale_img = np.copy(image)
         grayscale_img = grayscale_img.astype('float64')
         red = 0.21

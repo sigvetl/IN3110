@@ -3,13 +3,23 @@ import numpy as np
 from instapy.python_color2sepia import sepia_image as python_sepia
 from instapy.numba_color2sepia import sepia_image as numba_sepia
 
-"""
-Main implementation of sepia_image. Takes an additional argument to determine
-which implementation to use. If no argument is given, using numpy.
-Checking if input_filename is an array or a file for testing purposes.
-Otherwise same functionality as in toSepia
-"""
+
 def sepia_image(input_filename, output_filename=None, implementation=None, scale=None):
+    """
+    Main implementation of sepia_image. Takes an additional argument to determine
+    which implementation to use. If no argument is given, using numpy.
+    Checking if input_filename is an array or a file for testing purposes.
+    Otherwise same functionality as in toSepia
+
+    Args:
+        input_filename (string): name of image file to be filtered
+        output_filename (string): name of filtered image to be saved. If None then filtered image will not be saved
+        implementation (string): choice of implementation - either python, numpy or numba
+        scale (int): Scale factor to resize image in % of original size. If None then default is 100%
+
+    Returns:
+        img (numpy ndarray): 3 dimensional array containing the sepia color pixel values as ints
+    """
     if implementation == 'python':
         py_sep = python_sepia(input_filename, output_filename, scale)
         return py_sep

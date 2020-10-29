@@ -2,12 +2,22 @@ import cv2
 from numba import jit
 import numpy as np
 
-"""
-Function is split into main- and helper-function to ensure checking and saving
-of image is possible. These are cheap operations that does not to a significant
-degree influence the running time of the function.
-"""
+
 def grayscale_image(input_filename, output_filename=None, scale=None):
+    """
+    Function is split into main- and helper-function to ensure checking and saving
+    of image is possible. These are cheap operations that do not to a significant
+    degree influence the running time of the function.
+    Checking if input_filename is an array or a file for testing purposes.
+
+    Args:
+        input_filename (string): name of image file to be filtered
+        output_filename (string): name of filtered image to be saved. If None then filtered image will not be saved
+        scale (int): Scale factor to resize image in % of original size. If None then default is 100%
+
+    Returns:
+        gray_image (numpy ndarray): 3 dimensional array containing the grayscale pixel values as ints
+    """
     if type(input_filename).__module__ == 'numpy':
         image = input_filename
     else:

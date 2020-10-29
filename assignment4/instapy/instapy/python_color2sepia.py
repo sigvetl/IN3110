@@ -6,11 +6,28 @@ sepia_matrix = [[0.393, 0.769, 0.189],
                 [0.349, 0.686, 0.168],
                 [0.272, 0.534, 0.131]]
 
-"""
-Including check for input filename to ensure there is not created a new array
-if the input is already a numpy array. If output_filename is given, saving file.
-"""
+
 def sepia_image(input_filename, output_filename=None, scale=None):
+    """
+    creating a zero initialized array to hold the new values with the same size.
+    looping through all indicies and assigning the cross product of red, green and blue with the average
+    of the first, second and third row of the matrix. when k is initialized for i and j, checking for values above
+    255 and setting to max-value if above. casting, writing to file and returning.
+    If output_filename is given then saving file.
+
+    Args:
+        input_filename (string): name of image file to be filtered
+        output_filename (string): name of filtered image to be saved. If None then filtered image will not be saved
+        scale (int): Scale factor to resize image in % of original size. If None then default is 100%
+
+    Returns:
+        img (numpy ndarray): 3 dimensional array containing the sepia color pixel values as ints
+    """
+
+    """
+    Including check for input filename to ensure there is not created a new array
+    if the input is already a numpy array. If output_filename is given, saving file.
+    """
     if type(input_filename).__module__ == 'numpy':
         image = input_filename
     else:
