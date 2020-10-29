@@ -979,7 +979,7 @@ https://en.wikipedia.org/wiki/GND_(identifier)
 https://en.wikipedia.org/wiki/LCCN_(identifier)
 https://en.wikipedia.org/wiki/VIAF_(identifier)
 https://en.wikipedia.org/wiki/WorldCat_Identities_(identifier)
-https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;oldid=984769012
+https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;oldid=985559480
 https://en.wikipedia.org/wiki/Bundesliga
 https://en.wikipedia.org/wiki/Bundesliga
 https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;action=edit
@@ -987,7 +987,7 @@ https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;action=history
 https://en.wikipedia.org/wiki/Main_Page
 https://en.wikipedia.org/wiki/Main_Page
 https://donate.wikimedia.org/wiki/Special:FundraiserRedirector?utm_source=donate&amp;utm_medium=sidebar&amp;utm_campaign=C13_en.wikipedia.org&amp;uselang=en
-https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;oldid=984769012
+https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;oldid=985559480
 https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;action=info
 https://en.wikipedia.org/w/index.php?title=Bundesliga&amp;printable=yes
 https://af.wikipedia.org/wiki/Bundesliga
