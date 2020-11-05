@@ -9,21 +9,24 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import time
-"""
-Fetches data from bracket, ectracts team-name and url for teams that appeared in
-the conference semifinals
 
-Args: URL of 2020 NBA
-
-Returns: 2d list with pairs of team names and URL for wikipedia entry of team
-"""
 def extract_teams(URL):
+    """
+    Fetches data from bracket, ectracts team-name and url for teams that appeared in
+    the conference semifinals
+
+    Args:
+        URL (string): url of 2020 NBA
+    Returns:
+        array: 2d list with pairs of team names and URL for wikipedia entry of team
+    """
     html = get_html("https://en.wikipedia.org/wiki/2020_NBA_playoffs")
     baseurl = "https://en.wikipedia.org"
     document = BeautifulSoup(html, "lxml")
     header = document.find("span",{"class":"mw-headline","id":"Bracket"})
     table = header.find_next("table")
     rows = table.find_all("tr")
+
     bracket = []
     for row in rows[4:-3]:
         cells = row.find_all(["td"])
@@ -33,6 +36,7 @@ def extract_teams(URL):
         cells_text = [cell.get_text(strip=True) for cell in cells]
         cells_text.append(baseurl + str(links))
         bracket.append(cells_text)
+
     bracket2 = []
     for previous, current, next in zip(bracket, bracket[1:], bracket[2:]):
         if len(current) == 3 and current[1] == "":
@@ -43,18 +47,22 @@ def extract_teams(URL):
             team = re.findall(regex, next[3])[0]
             link = next[-1]
             bracket2.append([team, link])
+
     return bracket2
 
-"""
-Searches through the table entry for each team containing the active players
-and appends all active players and their URLs to a list
 
-Args: List of team-URL pairs
-
-Returns: 3d list containing team-name and player-URL pairs
-"""
 def get_player_links(teams):
+    """
+    Searches through the table entry for each team containing the active players
+    and appends all active players and their URLs to a list
+
+    Args:
+       teams (array): List of team-URL pairs
+    Returns:
+        array: 3d list containing team-name and player-URL pairs
+    """
     baseurl = "https://en.wikipedia.org"
+
     player_urls = []
     for i in range(len(teams)):
         html = get_html(teams[i][1])
@@ -65,6 +73,7 @@ def get_player_links(teams):
         liste = []
         team = []
         team.append(teams[i][0])
+
         for row in rows:
             cells = row.find_all(["td"])
             celler = [cell for cell in cells]
@@ -79,18 +88,20 @@ def get_player_links(teams):
             pair.append(baseurl + str(lenke))
             team.append(pair)
         player_urls.append(team)
+
     return player_urls
 
-"""
-Extracts player points, rebound and blocks from each players 2019-20 regular
-season stats. Time consuming function. Tried using threads to speed it up, but i believe
-the bottlenecks are the get-request
-
-Args: 3d list containing team-name and player-URL pairs
-
-Returns: 3d list containing team-name and [player-name, stats]
-"""
 def get_player_stats(player_urls):
+    """
+    Extracts player points, rebound and blocks from each players 2019-20 regular
+    season stats. Time consuming function. Tried using threads to speed it up, but i believe
+    the bottlenecks are the get-request
+
+    Args:
+        player_urls (array): 3d list containing team-name and player-URL pairs
+    Returns:
+        array: 3d list containing team-name and [player-name, stats]
+    """
     player_stats = []
     for i in range(len(player_urls)):
         teamlist = []
@@ -117,16 +128,19 @@ def get_player_stats(player_urls):
     return player_stats
         #RPG = 8, BPG = 11, PPG = 12
 
-"""
-Driver function. Calls submethods and sorts and extracts 3 best players
-Sends this list to function that creates plots
 
-Args: 3d list containing team-name and [player-name, stats]
-
-Return: Sorted 3d list containing team-name and [player-name, stats] for top
-3 players for each team
-"""
 def filter_top_3(url):
+    """
+    Driver function. Calls submethods and sorts and extracts 3 best players
+    Sends this list to function that creates plots
+
+    Args:
+        url (array): 3d list containing team-name and [player-name, stats]
+
+    Return:
+        array: Sorted 3d list containing team-name and [player-name, stats]
+                for top 3 players for each team
+    """
     team_urls = extract_teams(url)
     player_urls = get_player_links(team_urls)
     player_stats = get_player_stats(player_urls)
@@ -141,16 +155,19 @@ def filter_top_3(url):
     return all
 
 
-"""
-Creates a list for the stat to be plotted for each team and plots the data grouped by team
-I struggled with the player-ticks and have set the teamlabels as ticks in
 
-Args: 3d list of 3 best players for each team, the index that fetches the right column, title of the y-axis,
-the abbrievation to be concatenated with the title and a filename for storage of the file
-
-Returns: Nothing
-"""
 def bar_plot(best_players, index, title, type, file):
+    """
+    Creates a list for the stat to be plotted for each team and plots the data grouped by team
+    I struggled with the player-ticks and have set the teamlabels as ticks in
+
+    Args:
+        best_players (array): 3d list of 3 best players for each team,
+        index (int): the index that fetches the right column
+        title (string): title of the y-axis,
+        type (string): the abbrievation to be concatenated with the title
+        file (string): filename for storage of the file
+    """
     teamlabels = []
     playerlabels = []
     team1 = []
@@ -222,6 +239,7 @@ def bar_plot(best_players, index, title, type, file):
     plt.savefig(file)
 
     plt.show()
+
 
 url = "https://en.wikipedia.org/wiki/2020_NBA_playoffs"
 best_players = filter_top_3(url)
