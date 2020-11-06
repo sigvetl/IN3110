@@ -17,7 +17,7 @@ def get_html(url, params=None, output=None):
 
     assert r.status_code == 200
 
-    if output != None:
+    if output is not None:
         f = open(output, "w")
         f.write(r.url)
         f.write(r.text)

@@ -135,7 +135,7 @@ def filter_top_3(url):
     Sends this list to function that creates plots
 
     Args:
-        url (array): 3d list containing team-name and [player-name, stats]
+        url (array.pyi): 3d list containing team-name and [player-name, stats]
 
     Return:
         array: Sorted 3d list containing team-name and [player-name, stats]

@@ -30,7 +30,6 @@ def find_urls(html_doc, baseurl):
     return matches
 
 
-#
 def find_articles(html_string, baseurl, name):
     """
     Searches through a list of URLs and filters out the ones not matched by the regex.
