@@ -1,16 +1,23 @@
 import requests as req
 from os import path
 
-"""
-Sends a get reguest with an url and optional parameters and optionally saves the html to a .txt
 
-Args: A valid URL-string, optional parameters and an optional filename
-
-Returns: The text-element of the get-request
-"""
 def get_html(url, params=None, output=None):
+    """
+    Sends a get reguest with an url and optional parameters and optionally saves the html to a .txt
+
+    Args:
+        url (string): A valid URL-string
+        params (dict): optional parameters to get request
+        filename (string): optional name of file
+    Returns:
+        text: The text-element of the get-request
+    """
     r = req.get(url, params=params)
-    if output != None:
+
+    assert r.status_code == 200
+
+    if output is not None:
         f = open(output, "w")
         f.write(r.url)
         f.write(r.text)
