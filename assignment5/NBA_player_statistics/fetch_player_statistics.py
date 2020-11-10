@@ -170,42 +170,25 @@ def bar_plot(best_players, index, title, type, file):
     """
     teamlabels = []
     playerlabels = []
-    team1 = []
-    team2 = []
-    team3 = []
-    team4 = []
-    team5 = []
-    team6 = []
-    team7 = []
-    team8 = []
+    teams = []
+
     for i in range(len(best_players)):
         teamlabels.append(best_players[i][0])
+        team = []
         for j in range(len(best_players[i])-1):
             playerlabels.append(best_players[i][j+1][0])
-
-    for i in range(len(best_players[0])-1):
-        team1.append(best_players[0][i+1][index])
-        team2.append(best_players[1][i+1][index])
-        team3.append(best_players[2][i+1][index])
-        team4.append(best_players[3][i+1][index])
-        team5.append(best_players[4][i+1][index])
-        team6.append(best_players[5][i+1][index])
-        team7.append(best_players[6][i+1][index])
-        team8.append(best_players[7][i+1][index])
+            team.append(best_players[i][j+1][index])
+        teams.append(team)
 
     x = np.arange(len(teamlabels))  # the label locations
     width = 0.25  # distance between bars
     widthbar = 0.2 #width of bars
 
     fig, ax = plt.subplots()
-    rects1 = ax.bar([0-width, 0, 0+width], team1, widthbar, label=best_players[0][0])
-    rects2 = ax.bar([1-width, 1, 1+width], team2, widthbar, label=best_players[1][0])
-    rects3 = ax.bar([2-width, 2, 2+width], team3, widthbar, label=best_players[2][0])
-    rects4 = ax.bar([3-width, 3, 3+width], team4, widthbar, label=best_players[3][0])
-    rects5 = ax.bar([4-width, 4, 4+width], team5, widthbar, label=best_players[4][0])
-    rects6 = ax.bar([5-width, 5, 5+width], team6, widthbar, label=best_players[5][0])
-    rects7 = ax.bar([6-width, 6, 6+width], team7, widthbar, label=best_players[6][0])
-    rects8 = ax.bar([7-width, 7, 7+width], team8, widthbar, label=best_players[7][0])
+    rects = []
+    for i in range(len(teams)):
+        rect = ax.bar([i-width, i, i+width], teams[i], widthbar, label=best_players[i][0])
+        rects.append(rect)
 
     ax.set(xlim=(-0.5, 10.5))
     ax.set_ylabel(title)
@@ -224,15 +207,8 @@ def bar_plot(best_players, index, title, type, file):
                         xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points",
                         ha='center', va='bottom')
-
-    autolabel(rects1)
-    autolabel(rects2)
-    autolabel(rects3)
-    autolabel(rects4)
-    autolabel(rects5)
-    autolabel(rects6)
-    autolabel(rects7)
-    autolabel(rects8)
+    for rect in rects:
+        autolabel(rect)
 
     fig.tight_layout()
 
