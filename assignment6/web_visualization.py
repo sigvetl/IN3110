@@ -48,6 +48,42 @@ def read_csv(county, start=None, end=None):
 
     return cases.loc[(cases["Dato"] >= startdate) & (cases["Dato"] <= enddate)]
 
+def read_csv_map():
+    try:
+        data = pd.read_csv(
+            "data/antall-meldte-tilfeller.csv",
+            sep=";")
+    except FileNotFoundError:
+        print("Not a valid file")
+
+    return data
+
+def norway_plot():
+    df = read_csv_map()
+    df["Insidens"] = pd.to_numeric(df["Insidens"].str.replace(",", "."))
+    print(df.Insidens.head())
+    counties = alt.topo_feature("https://raw.githubusercontent.com/deldersveld/topojson/master/countries/norway/norway-new-counties.json", "Fylker")
+    nearest = alt.selection(type="single", on="mouseover", fields=["properties.navn"], empty="none")
+
+    fig = alt.Chart(counties).mark_geoshape().encode(
+	tooltip=[
+	    alt.Tooltip("properties.navn:N", title="County"),
+	    alt.Tooltip("Insidens:Q", title="Cases per 100k capita"),
+	],
+    color=alt.Color("Insidens:Q", scale=alt.Scale(scheme="reds"),
+	   legend=alt.Legend(title="Cases per 100k capita")),
+	stroke=alt.condition(nearest, alt.value("gray"), alt.value(None)),
+	opacity=alt.condition(nearest, alt.value(1), alt.value(0.8)),
+    ).transform_lookup(
+	lookup="properties.navn",
+	from_=alt.LookupData(df, "Category", ["Insidens"])
+    ).properties(
+	width=500,
+	height=600,
+	title="Number of cases per 100k in every county",
+    ).add_selection(nearest)
+    fig.save("map.html")
+    return fig
 
 def plot_reported_cases(county="all counties", start=None, end=None):
     cases = read_csv(county, start, end)
@@ -92,7 +128,7 @@ def plot_both(county="all counties", start=None, end=None):
 
     return x
 
-
+norway_plot()
 #chart = plot_reported_cases(start="01.03.2020", end="01.10.2020")
 #chart = plot_cumulative_cases()
 #chart.show()

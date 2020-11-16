@@ -22,6 +22,19 @@ def plot_layered(county):
     with open(tmp.name) as file:
         return file.read()
 
+@app.route("/norway_plot")
+def plot_norway():
+    return render_template('map.html')
+
+@app.route("/norway_plot.json")
+def plot_norway_get_json():
+
+    map = norway_plot()
+    tmp = tempfile.NamedTemporaryFile(suffix='.json')
+    map.save(tmp.name)
+    with open(tmp.name) as file:
+        return file.read()
+
 """
 @app.route("/reported_cases")
 def plot_cases():
