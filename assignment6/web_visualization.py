@@ -3,11 +3,37 @@ import pandas as pd
 import sys
 import altair as alt
 from altair_saver import save
+import tempfile
+from flask import Flask, Response, render_template, request, redirect, url_for
 
-#Hardcoded n to select spacing in graphs
-n=263
-#Need more thorough error checking
-def read_csv(county, start=None, end=None):
+#Initialize the flask app
+app = Flask(__name__)
+
+def __read_csv(county, start=None, end=None):
+    """
+    Private function reading the selected csv file (default - antall-meldte-covid-19-allcounties.csv)
+    and transforming the data into a panda dataframe.
+    Error checks that the selected name is a valid file, checks that the start date is before the end
+    date and sets the start and end to first and last value of dataset if a value is not specified.
+    Checks that selected dates are available in dataset.
+
+    Args:
+        county(str): Name of a county or all counties
+        start(str): Start date in the format "%d.%m.%Y"
+        end(str): En date in the format "%d.%m.%Y"
+
+    Returns:
+        cases(pandas.core.frame.DataFrame): Data from csv-file with the selected date-interval
+
+    Raises:
+        FileNotFoundError: Prints an error message if the county cannot be found within the .csv files
+
+        ValueError: Prints a message if the end date is before the start date.
+            If the selected values are out of bounds with the values in the .csv file,
+            a message with the interval to be selected from are printed.
+            If the format of the suplied date does not correspond with the format,
+            the format and an example are printed.
+    """
     try:
         county = county.lower().replace(" ", "")
         cases = pd.read_csv(
@@ -43,25 +69,47 @@ def read_csv(county, start=None, end=None):
             raise ValueError
 
     except ValueError:
-        print("Please enter valid dates for start and end")
+        print("Please enter valid dates for start and end in the format \"%d.%m.%Y\", e.g 20.03.2020")
         sys.exit(1)
+
+    #global int representing number of dates in dataset. Is used within the plotting functions to
+    #select spacing of the plot
+    global n
+    n = cases.Dato.size
 
     return cases.loc[(cases["Dato"] >= startdate) & (cases["Dato"] <= enddate)]
 
-def read_csv_map():
+def __read_csv_map():
+    """
+    Private function that reads the .csv file containing the weekly number of cases in each county.
+
+    Returns:
+        data(pandas.core.frame.DataFrame): The data contained in the .csv file
+
+    Raises:
+        FileNotFoundError: Prints a message and exits if the file is not found.
+    """
     try:
         data = pd.read_csv(
             "data/antall-meldte-tilfeller.csv",
             sep=";")
     except FileNotFoundError:
         print("Not a valid file")
+        sys.exit(1)
 
     return data
 
 def norway_plot():
-    df = read_csv_map()
+    """
+    Makes a map plot of norway with the data of weekly number of cases in each county
+
+    Returns:
+        (Altair.Chart): A chart in the form of a map with weekly number of cases per 100k
+            in each county visualized with color.
+    """
+    df = __read_csv_map()
+    #transform Insidens into float
     df["Insidens"] = pd.to_numeric(df["Insidens"].str.replace(",", "."))
-    print(df.Insidens.head())
     counties = alt.topo_feature("https://raw.githubusercontent.com/deldersveld/topojson/master/countries/norway/norway-new-counties.json", "Fylker")
     nearest = alt.selection(type="single", on="mouseover", fields=["properties.navn"], empty="none")
 
@@ -82,55 +130,175 @@ def norway_plot():
 	height=600,
 	title="Number of cases per 100k in every county",
     ).add_selection(nearest)
-    fig.save("map.html")
+
     return fig
 
 def plot_reported_cases(county="all counties", start=None, end=None):
-    cases = read_csv(county, start, end)
-    chart = alt.Chart(cases).mark_bar(size=n/len(cases)).encode(
-        x = 'Dato',
-        y = 'Nye tilfeller',
-        tooltip=['Dato', 'Nye tilfeller']
-    ).properties(title=f"Number of reported COVID-19 cases in {county} by specimen collection date"
-    ).interactive()
-    return chart
+    """
+    Gets a dataframe by calling __read_csv with the selected arguments.
+    Turns this data into a plot of new cases over dates.
 
+    Args:
+        county(str): Name of a county or all counties. Default value is all counties.
+        start(str): Start date in the format "%d.%m.%Y". Default value is None and translates to first date in dataset.
+        end(str): En date in the format "%d.%m.%Y". Default value is None and translates to first date in dataset.
+    Returns:
+        (Altair.Chart): A chart with the number of cases plotted against the dates.
+    """
+    cases = __read_csv(county, start, end)
+    nearest_bar = alt.selection(type='single', on='mouseover',
+                        fields=['Dato'], empty='none')
+    chart = alt.Chart(cases).mark_bar(opacity=0.8, size=n/len(cases)+1).encode(
+        alt.X('Dato', title='Date'),
+        alt.Y('Nye tilfeller', title='New cases'),
+        tooltip=[alt.Tooltip('Dato', title='Date'), alt.Tooltip('Nye tilfeller', title='New cases')],
+        opacity=alt.condition(nearest_bar, alt.value(1), alt.value(0.8))
+    ).properties(title=f"Number of reported COVID-19 cases in {county} by specimen collection date",
+        width=600,
+        height=500
+    ).add_selection(nearest_bar)
+
+    return chart
 
 def plot_cumulative_cases(county="all counties", start=None, end=None):
-    cases = read_csv(county, start, end)
-    chart = alt.Chart(cases).mark_line().encode(
-        x = 'Dato',
+    """
+    Gets a dataframe by calling __read_csv with the seelcted arguments.
+    Creates a plot of cumulative cases over dates.
+
+    Args:
+        county(str): Name of a county or all counties.
+            Default value is all counties.
+        start(str): Start date in the format "%d.%m.%Y".
+            Default value is None and translates to first date in dataset.
+        end(str): En date in the format "%d.%m.%Y".
+            Default value is None and translates to first date in dataset.
+    Returns:
+        (Altair.Chart): A chart with the cumulative number of cases plotted against the dates.
+    """
+    cases = __read_csv(county, start, end)
+    nearest_line = alt.selection(type='single', on='mouseover',
+                        fields=['Dato'], empty='none')
+    chart = alt.Chart(cases).mark_line(size=3).encode(
+        alt.X('Dato', title='Date'),
         #Bredere linje
-        y = 'Kumulativt antall',
-        tooltip=['Dato', 'Kumulativt antall']
-    ).properties(thickness=3,
-    title=f"Cumulative number of reported COVID-19 cases in {county} by specimen collection date")
+        alt.Y('Kumulativt antall', title='Cumulative number of cases'),
+        tooltip=[alt.Tooltip('Dato', title='Date'), alt.Tooltip('Kumulativt antall', title='Cumulative number of cases')],
+        size=alt.condition(nearest_line, alt.value(5), alt.value(3))
+    ).properties(
+    title=f"Cumulative number of reported COVID-19 cases in {county} by specimen collection date",
+    width=600,
+    height=500
+    ).add_selection(nearest_line)
 
     return chart
 
-def plot_both(county="all counties", start=None, end=None):
-    cases = read_csv(county, start, end)
-    base = alt.Chart(cases).encode(
-        alt.X('Dato', axis=alt.Axis(title='Date')), tooltip=['Dato', 'Kumulativt antall', 'Nye tilfeller']
-    ).properties(title=f"Number of reported COVID-19 cases in {county} by specimen collection date")
-
-    line =  base.mark_line(color='red').encode(
-        alt.Y('Kumulativt antall', axis=alt.Axis(title='Kumulativt antall'))
-    )
-
-    bar = base.mark_bar(opacity=0.5, size=n/len(cases)).encode(
-    alt.Y('Nye tilfeller', axis=alt.Axis(title='Nye tilfeller'))
-    )
-
-    x = alt.layer(line, bar).resolve_scale(
+def plot(county="all counties", start=None, end=None):
+    cases = plot_reported_cases(county, start, end)
+    cumulative = plot_cumulative_cases(county, start, end)
+    x = alt.layer(cases, cumulative).resolve_scale(
         y = 'independent'
     )
+    x.show()
 
-    return x
+def plot_both(county="all counties", start=None, end=None):
+    """
+    Gets a dataframe by calling __read_csv with the seelcted arguments.
+    Creates a plot of cumulative cases over one y-axis and new cases over the other y-axis
 
-norway_plot()
-#chart = plot_reported_cases(start="01.03.2020", end="01.10.2020")
-#chart = plot_cumulative_cases()
-#chart.show()
-#a = plot_both()
-#a.save("chart.json")
+    Args:
+        county(str): Name of a county or all counties. Default value is all counties.
+        start(str): Start date in the format "%d.%m.%Y". Default value is None and translates to first date in dataset.
+        end(str): En date in the format "%d.%m.%Y". Default value is None and translates to first date in dataset.
+    Returns:
+        (Altair.Chart): A chart with the number of cases and cumulative number of cases plotted against the dates.
+    """
+    cases = __read_csv(county, start, end)
+    nearest_line = alt.selection(type='single', on='mouseover',
+                        fields=["Dato"], empty='none')
+    nearest_bar = alt.selection(type='single', on='mouseover',
+                        fields=["Dato"], empty='none')
+    base = alt.Chart(cases).encode(
+        alt.X('Dato', title='Date'),
+    ).properties(title=f"Number of reported COVID-19 cases in {county} by specimen collection date"
+    )
+
+    line =  base.mark_line(color='red').encode(
+        alt.Y('Kumulativt antall', axis=alt.Axis(title='Cumulative number of cases')),
+        tooltip=[alt.Tooltip('Dato', title='Date'),
+        alt.Tooltip('Kumulativt antall', title='Cumulative number of cases')],
+        size=alt.condition(nearest_line, alt.value(5), alt.value(3))
+    ).add_selection(nearest_line)
+
+    bar = base.mark_bar(size=n/len(cases)+0.5).encode(
+        alt.Y('Nye tilfeller', axis=alt.Axis(title='New cases')),
+        tooltip=[alt.Tooltip('Dato', title='Date'),
+        alt.Tooltip('Nye tilfeller', title='New cases')],
+        opacity=alt.condition(nearest_bar, alt.value(1), alt.value(0.7))
+    ).add_selection(nearest_bar)
+
+    layered = alt.layer(line, bar).resolve_scale(
+        y = 'independent'
+    ).properties(width=600, height=500)
+
+    return layered
+
+@app.route("/", methods=['GET', 'POST'])
+def menu():
+    """
+    Creates and renders a chart with all counties if method = get.
+    Creates and renders a chart with selected county from dropdown if method = post
+
+    Returns:
+        render_template: Renders the template with the specified county if the request is POST
+            If the request is get, such as in the first instance, it renders with county=all counties
+    """
+    #lag en meny som sender videre til sidene
+    if request.method == "POST":
+        county = request.form.get('county')
+        return render_template("chart.html", county=county)
+    return render_template('chart.html', county='All counties')
+
+@app.route("/plot.json/<county>")
+def plot_layered(county):
+    """
+    Creates the plot of new cases/cumulative cases over dates and
+    returns a string of the configuration.
+
+    Args:
+        county(str): The county to make the plot for
+
+    Returns:
+        (.json str): A string of the plot configuration
+    """
+    chart = plot_both(county)
+    tmp = tempfile.NamedTemporaryFile(suffix='.json')
+    chart.save(tmp.name)
+    with open(tmp.name) as file:
+        return file.read()
+
+@app.route("/norway_plot")
+def plot_norway():
+    """
+    Renders the html-template map.html with the plot configuaration from norway_plot.json
+
+    Returns:
+        render_template: Renders the template with the generated json map plot
+    """
+    return render_template('map.html')
+
+@app.route("/norway_plot.json")
+def plot_norway_get_json():
+    """
+    Creates the map plot and returns the string of the plot configuration
+
+    Returns:
+        (.json str): a string of the plot configuration
+    """
+    map = norway_plot()
+    tmp = tempfile.NamedTemporaryFile(suffix='.json')
+    map.save(tmp.name)
+    with open(tmp.name) as file:
+        return file.read()
+
+if __name__ =="__main__":
+    app.run(debug=True)

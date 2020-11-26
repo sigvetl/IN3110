@@ -13,9 +13,11 @@
 <body>
   <div id="vis"></div>
   <script>
-    (function(vegaEmbed) {
-      var spec = {"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"url": "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/norway/norway-new-counties.json", "format": {"feature": "Fylker", "type": "topojson"}}, "mark": "geoshape", "encoding": {"color": {"type": "quantitative", "field": "Insidens", "legend": {"title": "Cases per 100k capita"}, "scale": {"scheme": "reds"}}, "opacity": {"condition": {"value": 1, "selection": "selector001"}, "value": 0.8}, "stroke": {"condition": {"value": "gray", "selection": "selector001"}, "value": null}, "tooltip": [{"type": "nominal", "field": "properties.navn", "title": "County"}, {"type": "quantitative", "field": "Insidens", "title": "Cases per 100k capita"}]}, "height": 600, "selection": {"selector001": {"type": "single", "on": "mouseover", "fields": ["properties.navn"], "empty": "none"}}, "title": "Number of cases per 100k in every county", "transform": [{"lookup": "properties.navn", "from": {"data": {"name": "data-641bd3dfe25ccf930615b8800c1ff5b9"}, "key": "Category", "fields": ["Insidens"]}}], "width": 500, "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-641bd3dfe25ccf930615b8800c1ff5b9": [{"Category": "Oslo", "Insidens": 1234.5}, {"Category": "Viken", "Insidens": 653.1}, {"Category": "Vestland", "Insidens": 691.6}, {"Category": "Innlandet", "Insidens": 394.2}, {"Category": "Rogaland", "Insidens": 287.1}, {"Category": "Tr\u00f8ndelag", "Insidens": 239.8}, {"Category": "Vestfold og Telemark", "Insidens": 226.8}, {"Category": "Agder", "Insidens": 292.6}, {"Category": "Troms og Finnmark", "Insidens": 316.9}, {"Category": "M\u00f8re og Romsdal", "Insidens": 206.2}, {"Category": "Nordland", "Insidens": 194.8}]}};
-      var embedOpt = {"mode": "vega-lite"};
+    (async function(vegaEmbed) {
+      var response = await fetch("norway_plot.json");
+      var spec = await response.json();
+
+      var embedOpt = {"mode":"vega-lite"};
 
       function showError(el, error){
           el.innerHTML = ('<div class="error" style="color:red;">'
