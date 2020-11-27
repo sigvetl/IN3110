@@ -1,13 +1,16 @@
-#import numpy as np
+"""
+This module reads datasets containing covid-19 cases in all counties in Norway
+and creates visual representations of the data with altair charts.
+
+The generated plots are visualized on a Flask app.
+"""
+#This docstring needs to stay on top of the document for documentation with sphinx
+
 import pandas as pd
 import sys
 import altair as alt
-from altair_saver import save
 import tempfile
-from flask import Flask, Response, render_template, request, redirect, url_for
-
-#Initialize the flask app
-app = Flask(__name__)
+from flask import Flask, Response, render_template, request
 
 def __read_csv(county, start=None, end=None):
     """
@@ -36,11 +39,12 @@ def __read_csv(county, start=None, end=None):
     """
     try:
         county = county.lower().replace(" ", "")
+        print(county)
         cases = pd.read_csv(
             f"data/antall-meldte-covid-19-{county}.csv",
             sep=";",
             parse_dates=["Dato"],
-            date_parser=lambda col: pd.to_datetime(col, format="%d.%m.%Y"))
+            date_parser=lambda col: pd.to_datetime(col, format="%Y-%m-%d"))
 
     except FileNotFoundError:
         errormsg = "\n\033[1mNot a valid selection. Please select one of the following:\033[0m\n\n"\
@@ -81,7 +85,7 @@ def __read_csv(county, start=None, end=None):
 
 def __read_csv_map():
     """
-    Private function that reads the .csv file containing the weekly number of cases in each county.
+    Private function that reads the .csv file containing the number of cases per 100k inhabitants
 
     Returns:
         data(pandas.core.frame.DataFrame): The data contained in the .csv file
@@ -101,10 +105,10 @@ def __read_csv_map():
 
 def norway_plot():
     """
-    Makes a map plot of norway with the data of weekly number of cases in each county
+    Makes a map plot of norway with the data of number of cases per 100k inhabitants in each county
 
     Returns:
-        (Altair.Chart): A chart in the form of a map with weekly number of cases per 100k
+        (Altair.Chart): A chart in the form of a map with the number of cases per 100k
             in each county visualized with color.
     """
     df = __read_csv_map()
@@ -242,6 +246,9 @@ def plot_both(county="all counties", start=None, end=None):
 
     return layered
 
+#Initialize the flask app
+app = Flask(__name__, static_url_path='/docs', static_folder='docs/_build/html/')
+
 @app.route("/", methods=['GET', 'POST'])
 def menu():
     """
@@ -299,6 +306,12 @@ def plot_norway_get_json():
     map.save(tmp.name)
     with open(tmp.name) as file:
         return file.read()
+
+#documentation
+@app.route('/help')
+@app.route('/<path:path>')
+def serve_sphinx_docs(path='index.html'):
+    return app.send_static_file(path)
 
 if __name__ =="__main__":
     app.run(debug=True)

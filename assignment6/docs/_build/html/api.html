@@ -34,6 +34,9 @@
             
   <div class="section" id="module-web_visualization">
 <span id="web-visualization-api"></span><h1>Web Visualization API<a class="headerlink" href="#module-web_visualization" title="Permalink to this headline">¶</a></h1>
+<p>This module reads datasets containing covid-19 cases in all counties in Norway
+and creates visual representations of the data with altair charts.</p>
+<p>The generated plots are visualized on a Flask app.</p>
 <dl class="py function">
 <dt id="web_visualization.__read_csv">
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">__read_csv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.__read_csv" title="Permalink to this definition">¶</a></dt>
@@ -42,21 +45,29 @@ and transforming the data into a panda dataframe.
 Error checks that the selected name is a valid file, checks that the start date is before the end
 date and sets the start and end to first and last value of dataset if a value is not specified.
 Checks that selected dates are available in dataset.</p>
-<dl>
-<dt>Args:</dt><dd><p>county(str): Name of a county or all counties
-start(str): Start date in the format “%d.%m.%Y”
-end(str): En date in the format “%d.%m.%Y”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>county</strong> (<em>str</em>) – Name of a county or all counties</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – Start date in the format “%d.%m.%Y”</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – En date in the format “%d.%m.%Y”</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>cases(pandas.core.frame.DataFrame): Data from csv-file with the selected date-interval</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Data from csv-file with the selected date-interval</p>
 </dd>
-<dt>Raises:</dt><dd><p>FileNotFoundError: Prints an error message if the county cannot be found within the .csv files</p>
-<dl class="simple">
-<dt>ValueError: Prints a message if the end date is before the start date.</dt><dd><p>If the selected values are out of bounds with the values in the .csv file,
-a message with the interval to be selected from are printed.
-If the format of the suplied date does not correspond with the format,
-the format and an example are printed.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>cases(pandas.core.frame.DataFrame)</p>
 </dd>
-</dl>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> – Prints an error message if the county cannot be found within the .csv files</p></li>
+<li><p><strong>ValueError</strong> – Prints a message if the end date is before the start date.
+    If the selected values are out of bounds with the values in the .csv file,
+    a message with the interval to be selected from are printed.
+    If the format of the suplied date does not correspond with the format,
+    the format and an example are printed.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -64,11 +75,16 @@ the format and an example are printed.</p>
 <dl class="py function">
 <dt id="web_visualization.__read_csv_map">
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">__read_csv_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.__read_csv_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Private function that reads the .csv file containing the weekly number of cases in each county.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>data(pandas.core.frame.DataFrame): The data contained in the .csv file</p>
+<dd><p>Private function that reads the .csv file containing the number of cases per 100k inhabitants</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The data contained in the .csv file</p>
 </dd>
-<dt>Raises:</dt><dd><p>FileNotFoundError: Prints a message and exits if the file is not found.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>data(pandas.core.frame.DataFrame)</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>FileNotFoundError</strong> – Prints a message and exits if the file is not found.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -76,12 +92,17 @@ the format and an example are printed.</p>
 <dl class="py function">
 <dt id="web_visualization.norway_plot">
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">norway_plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.norway_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes a map plot of norway with the data of weekly number of cases in each county</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>(Altair.Chart): A chart in the form of a map with weekly number of cases per 100k</dt><dd><p>in each county visualized with color.</p>
+<dd><p>Makes a map plot of norway with the data of number of cases per 100k inhabitants in each county</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A chart in the form of a map with the number of cases per 100k</dt><dd><p>in each county visualized with color.</p>
 </dd>
 </dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(Altair.Chart)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -91,12 +112,19 @@ the format and an example are printed.</p>
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_reported_cases</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all counties'</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.plot_reported_cases" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a dataframe by calling __read_csv with the selected arguments.
 Turns this data into a plot of new cases over dates.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>county(str): Name of a county or all counties. Default value is all counties.
-start(str): Start date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.
-end(str): En date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>county</strong> (<em>str</em>) – Name of a county or all counties. Default value is all counties.</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – Start date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – En date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>(Altair.Chart): A chart with the number of cases plotted against the dates.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A chart with the number of cases plotted against the dates.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(Altair.Chart)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -106,17 +134,22 @@ end(str): En date in the format “%d.%m.%Y”. Default value is None and transl
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_cumulative_cases</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all counties'</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.plot_cumulative_cases" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a dataframe by calling __read_csv with the seelcted arguments.
 Creates a plot of cumulative cases over dates.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>county(str): Name of a county or all counties.</dt><dd><p>Default value is all counties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>county</strong> (<em>str</em>) – Name of a county or all counties.
+Default value is all counties.</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – Start date in the format “%d.%m.%Y”.
+Default value is None and translates to first date in dataset.</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – En date in the format “%d.%m.%Y”.
+Default value is None and translates to first date in dataset.</p></li>
+</ul>
 </dd>
-<dt>start(str): Start date in the format “%d.%m.%Y”.</dt><dd><p>Default value is None and translates to first date in dataset.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A chart with the cumulative number of cases plotted against the dates.</p>
 </dd>
-<dt>end(str): En date in the format “%d.%m.%Y”.</dt><dd><p>Default value is None and translates to first date in dataset.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p>(Altair.Chart): A chart with the cumulative number of cases plotted against the dates.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(Altair.Chart)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -126,12 +159,19 @@ Creates a plot of cumulative cases over dates.</p>
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_both</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all counties'</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.plot_both" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a dataframe by calling __read_csv with the seelcted arguments.
 Creates a plot of cumulative cases over one y-axis and new cases over the other y-axis</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>county(str): Name of a county or all counties. Default value is all counties.
-start(str): Start date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.
-end(str): En date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>county</strong> (<em>str</em>) – Name of a county or all counties. Default value is all counties.</p></li>
+<li><p><strong>start</strong> (<em>str</em>) – Start date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – En date in the format “%d.%m.%Y”. Default value is None and translates to first date in dataset.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>(Altair.Chart): A chart with the number of cases and cumulative number of cases plotted against the dates.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A chart with the number of cases and cumulative number of cases plotted against the dates.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(Altair.Chart)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -141,11 +181,16 @@ end(str): En date in the format “%d.%m.%Y”. Default value is None and transl
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">menu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.menu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates and renders a chart with all counties if method = get.
 Creates and renders a chart with selected county from dropdown if method = post</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>render_template: Renders the template with the specified county if the request is POST</dt><dd><p>If the request is get, such as in the first instance, it renders with county=all counties</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Renders the template with the specified county if the request is POST</dt><dd><p>If the request is get, such as in the first instance, it renders with county=all counties</p>
 </dd>
 </dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>render_template</p>
 </dd>
 </dl>
 </dd></dl>
@@ -155,10 +200,15 @@ Creates and renders a chart with selected county from dropdown if method = post<
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_layered</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span></em><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.plot_layered" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the plot of new cases/cumulative cases over dates and
 returns a string of the configuration.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>county(str): The county to make the plot for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>county</strong> (<em>str</em>) – The county to make the plot for</p>
 </dd>
-<dt>Returns:</dt><dd><p>(.json str): A string of the plot configuration</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string of the plot configuration</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(json str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -167,8 +217,12 @@ returns a string of the configuration.</p>
 <dt id="web_visualization.plot_norway">
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_norway</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.plot_norway" title="Permalink to this definition">¶</a></dt>
 <dd><p>Renders the html-template map.html with the plot configuaration from norway_plot.json</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>render_template: Renders the template with the generated json map plot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Renders the template with the generated json map plot</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>render_template</p>
 </dd>
 </dl>
 </dd></dl>
@@ -177,8 +231,12 @@ returns a string of the configuration.</p>
 <dt id="web_visualization.plot_norway_get_json">
 <code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_norway_get_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#web_visualization.plot_norway_get_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the map plot and returns the string of the plot configuration</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>(.json str): a string of the plot configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a string of the plot configuration</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(json str)</p>
 </dd>
 </dl>
 </dd></dl>
