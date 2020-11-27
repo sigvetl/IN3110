@@ -1,10 +1,13 @@
 ## web_visualization.py
 ### __Requirements:__
 This module requires the following packages installed:
+
 __pandas:__
 install with: _"pip install pandas"_
+
 __altair:__
 install with: _"pip install altair"_
+
 __flask:__
 install with: _"pip install flask"_
 
