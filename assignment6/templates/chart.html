@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <style>
     .error {
-        color: red;
+      color: red;
     }
   </style>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
 </head>
+
 <body>
   <form action="/" method="post">
-      <select name="county">
-          <option value="All counties" selected >All counties</option>
-          <option value="Agder">Agder</option>
-          <option value="Innlandet">Innlandet</option>
-          <option value="Møre og Romsdal">Møre og Romsdal</option>
-          <option value="Nordland">Nordland</option>
-          <option value="Oslo">Oslo</option>
-          <option value="Rogaland">Rogaland</option>
-          <option value="Troms og Finnmark">Troms og Finnmark</option>
-          <option value="Trøndelag">Trøndelag</option>
-          <option value="Vestfold og Telemark">Vestfold og Telemark</option>
-          <option value="Vestland">Vestland</option>
-          <option value="Viken">Viken</option>
-      </select>
-      <input type="submit" value="Select">
+    <select name="county">
+      <option value="All counties" selected>All counties</option>
+      <option value="Agder">Agder</option>
+      <option value="Innlandet">Innlandet</option>
+      <option value="Møre og Romsdal">Møre og Romsdal</option>
+      <option value="Nordland">Nordland</option>
+      <option value="Oslo">Oslo</option>
+      <option value="Rogaland">Rogaland</option>
+      <option value="Troms og Finnmark">Troms og Finnmark</option>
+      <option value="Trøndelag">Trøndelag</option>
+      <option value="Vestfold og Telemark">Vestfold og Telemark</option>
+      <option value="Vestland">Vestland</option>
+      <option value="Viken">Viken</option>
+    </select>
+    <input type="submit" value="Select">
   </form>
   <div id="vis"></div>
   <script>
-    (async function(vegaEmbed) {
+    (async function (vegaEmbed) {
       var response = await fetch("plot.json/{{county}}",);
       var spec = await response.json();
 
-      var embedOpt = {"mode":"vega-lite"};
+      var embedOpt = { "mode": "vega-lite" };
 
-      function showError(el, error){
-          el.innerHTML = ('<div class="error" style="color:red;">'
-                          + '<p>JavaScript Error: ' + error.message + '</p>'
-                          + "<p>This usually means there's a typo in your chart specification. "
-                          + "See the javascript console for the full traceback.</p>"
-                          + '</div>');
-          throw error;
+      function showError(el, error) {
+        el.innerHTML = ('<div class="error" style="color:red;">'
+          + '<p>JavaScript Error: ' + error.message + '</p>'
+          + "<p>This usually means there's a typo in your chart specification. "
+          + "See the javascript console for the full traceback.</p>"
+          + '</div>');
+        throw error;
       }
       const el = document.getElementById('vis');
       vegaEmbed("#vis", spec, embedOpt)
@@ -50,11 +52,14 @@
     })(vegaEmbed);
 
   </script>
+
   <form action="/norway_plot">
     <input type="submit" value="Show map" />
   </form>
+
   <form action="/help">
     <input type="submit" value="Show help page" />
   </form>
 </body>
+
 </html>

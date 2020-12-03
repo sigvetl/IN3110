@@ -4,13 +4,14 @@ and creates visual representations of the data with altair charts.
 
 The generated plots are visualized on a Flask app.
 """
-#This docstring needs to stay on top of the document for documentation with sphinx
+# This docstring needs to stay on top of the document for documentation with sphinx
 
 import pandas as pd
 import sys
 import altair as alt
 import tempfile
 from flask import Flask, Response, render_template, request
+
 
 def __read_csv(county, start=None, end=None):
     """
@@ -44,12 +45,15 @@ def __read_csv(county, start=None, end=None):
             f"data/antall-meldte-covid-19-{county}.csv",
             sep=";",
             parse_dates=["Dato"],
-            date_parser=lambda col: pd.to_datetime(col, format="%Y-%m-%d"))
+            date_parser=lambda col: pd.to_datetime(col, format="%Y-%m-%d"),
+        )
 
     except FileNotFoundError:
-        errormsg = "\n\033[1mNot a valid selection. Please select one of the following:\033[0m\n\n"\
-        +"All counties\nAgder\nInnlandet\nMøre og Romsdal\nNordland\nOslo\nRogaland\n"\
-        +"Troms og Finnmark\nTrøndelag\nVestfold og Telemark\nVestland\nViken"
+        errormsg = (
+            "\n\033[1mNot a valid selection. Please select one of the following:\033[0m\n\n"
+            + "All counties\nAgder\nInnlandet\nMøre og Romsdal\nNordland\nOslo\nRogaland\n"
+            + "Troms og Finnmark\nTrøndelag\nVestfold og Telemark\nVestland\nViken"
+        )
         print(errormsg)
         sys.exit(1)
 
@@ -61,27 +65,40 @@ def __read_csv(county, start=None, end=None):
             print("End date must be after start date")
             raise ValueError
 
-        if start==None:
+        if start == None:
             startdate = cases["Dato"].iloc[0]
-        if end==None:
+        if end == None:
             enddate = cases["Dato"].iloc[-1]
 
-        if not (((startdate >= cases["Dato"].iloc[0]) and (startdate < cases["Dato"].iloc[-1]))
-        and ((enddate > cases["Dato"].iloc[0]) and (enddate <= cases["Dato"].iloc[-1]))):
-            print("Data does not exist for selected data range.\n"
-            + f"Please choose a date range from {cases['Dato'].iloc[0]} to {cases['Dato'].iloc[-1]}")
+        if not (
+            (
+                (startdate >= cases["Dato"].iloc[0])
+                and (startdate < cases["Dato"].iloc[-1])
+            )
+            and (
+                (enddate > cases["Dato"].iloc[0])
+                and (enddate <= cases["Dato"].iloc[-1])
+            )
+        ):
+            print(
+                "Data does not exist for selected data range.\n"
+                + f"Please choose a date range from {cases['Dato'].iloc[0]} to {cases['Dato'].iloc[-1]}"
+            )
             raise ValueError
 
     except ValueError:
-        print("Please enter valid dates for start and end in the format \"%d.%m.%Y\", e.g 20.03.2020")
+        print(
+            'Please enter valid dates for start and end in the format "%d.%m.%Y", e.g 20.03.2020'
+        )
         sys.exit(1)
 
-    #global int representing number of dates in dataset. Is used within the plotting functions to
-    #select spacing of the plot
+    # global int representing number of dates in dataset. Is used within the plotting functions to
+    # select spacing of the plot
     global n
     n = cases.Dato.size
 
     return cases.loc[(cases["Dato"] >= startdate) & (cases["Dato"] <= enddate)]
+
 
 def __read_csv_map():
     """
@@ -94,14 +111,13 @@ def __read_csv_map():
         FileNotFoundError: Prints a message and exits if the file is not found.
     """
     try:
-        data = pd.read_csv(
-            "data/antall-meldte-tilfeller.csv",
-            sep=";")
+        data = pd.read_csv("data/antall-meldte-tilfeller.csv", sep=";")
     except FileNotFoundError:
         print("Not a valid file")
         sys.exit(1)
 
     return data
+
 
 def norway_plot():
     """
@@ -112,30 +128,43 @@ def norway_plot():
             in each county visualized with color.
     """
     df = __read_csv_map()
-    #transform Insidens into float
+    # transform Insidens into float
     df["Insidens"] = pd.to_numeric(df["Insidens"].str.replace(",", "."))
-    counties = alt.topo_feature("https://raw.githubusercontent.com/deldersveld/topojson/master/countries/norway/norway-new-counties.json", "Fylker")
-    nearest = alt.selection(type="single", on="mouseover", fields=["properties.navn"], empty="none")
+    counties = alt.topo_feature(
+        "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/norway/norway-new-counties.json",
+        "Fylker",
+    )
+    nearest = alt.selection(
+        type="single", on="mouseover", fields=["properties.navn"], empty="none"
+    )
 
-    fig = alt.Chart(counties).mark_geoshape().encode(
-	tooltip=[
-	    alt.Tooltip("properties.navn:N", title="County"),
-	    alt.Tooltip("Insidens:Q", title="Cases per 100k capita"),
-	],
-    color=alt.Color("Insidens:Q", scale=alt.Scale(scheme="reds"),
-	   legend=alt.Legend(title="Cases per 100k capita")),
-	stroke=alt.condition(nearest, alt.value("gray"), alt.value(None)),
-	opacity=alt.condition(nearest, alt.value(1), alt.value(0.8)),
-    ).transform_lookup(
-	lookup="properties.navn",
-	from_=alt.LookupData(df, "Category", ["Insidens"])
-    ).properties(
-	width=500,
-	height=600,
-	title="Number of cases per 100k in every county",
-    ).add_selection(nearest)
+    fig = (
+        alt.Chart(counties)
+        .mark_geoshape()
+        .encode(
+            tooltip=[
+                alt.Tooltip("properties.navn:N", title="County"),
+                alt.Tooltip("Insidens:Q", title="Cases per 100k capita"),
+            ],
+            color=alt.Color(
+                "Insidens:Q",
+                scale=alt.Scale(scheme="reds"),
+                legend=alt.Legend(title="Cases per 100k capita"),
+            ),
+            stroke=alt.condition(nearest, alt.value("gray"), alt.value(None)),
+            opacity=alt.condition(nearest, alt.value(1), alt.value(0.8)),
+        )
+        .transform_lookup(
+            lookup="properties.navn", from_=alt.LookupData(df, "Category", ["Insidens"])
+        )
+        .properties(
+            width=500, height=600, title="Number of cases per 100k in every county"
+        )
+        .add_selection(nearest)
+    )
 
     return fig
+
 
 def plot_reported_cases(county="all counties", start=None, end=None):
     """
@@ -150,19 +179,31 @@ def plot_reported_cases(county="all counties", start=None, end=None):
         (Altair.Chart): A chart with the number of cases plotted against the dates.
     """
     cases = __read_csv(county, start, end)
-    nearest_bar = alt.selection(type='single', on='mouseover',
-                        fields=['Dato'], empty='none')
-    chart = alt.Chart(cases).mark_bar(opacity=0.8, size=n/len(cases)+1).encode(
-        alt.X('Dato', title='Date'),
-        alt.Y('Nye tilfeller', title='New cases'),
-        tooltip=[alt.Tooltip('Dato', title='Date'), alt.Tooltip('Nye tilfeller', title='New cases')],
-        opacity=alt.condition(nearest_bar, alt.value(1), alt.value(0.8))
-    ).properties(title=f"Number of reported COVID-19 cases in {county} by specimen collection date",
-        width=600,
-        height=500
-    ).add_selection(nearest_bar)
+    nearest_bar = alt.selection(
+        type="single", on="mouseover", fields=["Dato"], empty="none"
+    )
+    chart = (
+        alt.Chart(cases)
+        .mark_bar(opacity=0.8, size=n / len(cases) + 1)
+        .encode(
+            alt.X("Dato", title="Date"),
+            alt.Y("Nye tilfeller", title="New cases"),
+            tooltip=[
+                alt.Tooltip("Dato", title="Date"),
+                alt.Tooltip("Nye tilfeller", title="New cases"),
+            ],
+            opacity=alt.condition(nearest_bar, alt.value(1), alt.value(0.8)),
+        )
+        .properties(
+            title=f"Number of reported COVID-19 cases in {county} by specimen collection date",
+            width=600,
+            height=500,
+        )
+        .add_selection(nearest_bar)
+    )
 
     return chart
+
 
 def plot_cumulative_cases(county="all counties", start=None, end=None):
     """
@@ -180,29 +221,39 @@ def plot_cumulative_cases(county="all counties", start=None, end=None):
         (Altair.Chart): A chart with the cumulative number of cases plotted against the dates.
     """
     cases = __read_csv(county, start, end)
-    nearest_line = alt.selection(type='single', on='mouseover',
-                        fields=['Dato'], empty='none')
-    chart = alt.Chart(cases).mark_line(size=3).encode(
-        alt.X('Dato', title='Date'),
-        #Bredere linje
-        alt.Y('Kumulativt antall', title='Cumulative number of cases'),
-        tooltip=[alt.Tooltip('Dato', title='Date'), alt.Tooltip('Kumulativt antall', title='Cumulative number of cases')],
-        size=alt.condition(nearest_line, alt.value(5), alt.value(3))
-    ).properties(
-    title=f"Cumulative number of reported COVID-19 cases in {county} by specimen collection date",
-    width=600,
-    height=500
-    ).add_selection(nearest_line)
+    nearest_line = alt.selection(
+        type="single", on="mouseover", fields=["Dato"], empty="none"
+    )
+    chart = (
+        alt.Chart(cases)
+        .mark_line(size=3)
+        .encode(
+            alt.X("Dato", title="Date"),
+            # Bredere linje
+            alt.Y("Kumulativt antall", title="Cumulative number of cases"),
+            tooltip=[
+                alt.Tooltip("Dato", title="Date"),
+                alt.Tooltip("Kumulativt antall", title="Cumulative number of cases"),
+            ],
+            size=alt.condition(nearest_line, alt.value(5), alt.value(3)),
+        )
+        .properties(
+            title=f"Cumulative number of reported COVID-19 cases in {county} by specimen collection date",
+            width=600,
+            height=500,
+        )
+        .add_selection(nearest_line)
+    )
 
     return chart
+
 
 def plot(county="all counties", start=None, end=None):
     cases = plot_reported_cases(county, start, end)
     cumulative = plot_cumulative_cases(county, start, end)
-    x = alt.layer(cases, cumulative).resolve_scale(
-        y = 'independent'
-    )
+    x = alt.layer(cases, cumulative).resolve_scale(y="independent")
     x.show()
+
 
 def plot_both(county="all counties", start=None, end=None):
     """
@@ -217,39 +268,62 @@ def plot_both(county="all counties", start=None, end=None):
         (Altair.Chart): A chart with the number of cases and cumulative number of cases plotted against the dates.
     """
     cases = __read_csv(county, start, end)
-    nearest_line = alt.selection(type='single', on='mouseover',
-                        fields=["Dato"], empty='none')
-    nearest_bar = alt.selection(type='single', on='mouseover',
-                        fields=["Dato"], empty='none')
-    base = alt.Chart(cases).encode(
-        alt.X('Dato', title='Date'),
-    ).properties(title=f"Number of reported COVID-19 cases in {county} by specimen collection date"
+    nearest_line = alt.selection(
+        type="single", on="mouseover", fields=["Dato"], empty="none"
+    )
+    nearest_bar = alt.selection(
+        type="single", on="mouseover", fields=["Dato"], empty="none"
+    )
+    base = (
+        alt.Chart(cases)
+        .encode(alt.X("Dato", title="Date"))
+        .properties(
+            title=f"Number of reported COVID-19 cases in {county} by specimen collection date"
+        )
     )
 
-    line =  base.mark_line(color='red').encode(
-        alt.Y('Kumulativt antall', axis=alt.Axis(title='Cumulative number of cases')),
-        tooltip=[alt.Tooltip('Dato', title='Date'),
-        alt.Tooltip('Kumulativt antall', title='Cumulative number of cases')],
-        size=alt.condition(nearest_line, alt.value(5), alt.value(3))
-    ).add_selection(nearest_line)
+    line = (
+        base.mark_line(color="red")
+        .encode(
+            alt.Y(
+                "Kumulativt antall", axis=alt.Axis(title="Cumulative number of cases")
+            ),
+            tooltip=[
+                alt.Tooltip("Dato", title="Date"),
+                alt.Tooltip("Kumulativt antall", title="Cumulative number of cases"),
+            ],
+            size=alt.condition(nearest_line, alt.value(5), alt.value(3)),
+        )
+        .add_selection(nearest_line)
+    )
 
-    bar = base.mark_bar(size=n/len(cases)+0.5).encode(
-        alt.Y('Nye tilfeller', axis=alt.Axis(title='New cases')),
-        tooltip=[alt.Tooltip('Dato', title='Date'),
-        alt.Tooltip('Nye tilfeller', title='New cases')],
-        opacity=alt.condition(nearest_bar, alt.value(1), alt.value(0.7))
-    ).add_selection(nearest_bar)
+    bar = (
+        base.mark_bar(size=n / len(cases) + 0.5)
+        .encode(
+            alt.Y("Nye tilfeller", axis=alt.Axis(title="New cases")),
+            tooltip=[
+                alt.Tooltip("Dato", title="Date"),
+                alt.Tooltip("Nye tilfeller", title="New cases"),
+            ],
+            opacity=alt.condition(nearest_bar, alt.value(1), alt.value(0.7)),
+        )
+        .add_selection(nearest_bar)
+    )
 
-    layered = alt.layer(line, bar).resolve_scale(
-        y = 'independent'
-    ).properties(width=600, height=500)
+    layered = (
+        alt.layer(line, bar)
+        .resolve_scale(y="independent")
+        .properties(width=600, height=500)
+    )
 
     return layered
 
-#Initialize the flask app
-app = Flask(__name__, static_url_path='/docs', static_folder='docs/_build/html/')
 
-@app.route("/", methods=['GET', 'POST'])
+# Initialize the flask app
+app = Flask(__name__, static_url_path="/docs", static_folder="docs/_build/html/")
+
+
+@app.route("/", methods=["GET", "POST"])
 def menu():
     """
     Creates and renders a chart with all counties if method = get.
@@ -259,11 +333,12 @@ def menu():
         render_template: Renders the template with the specified county if the request is POST
             If the request is get, such as in the first instance, it renders with county=all counties
     """
-    #lag en meny som sender videre til sidene
+    # lag en meny som sender videre til sidene
     if request.method == "POST":
-        county = request.form.get('county')
+        county = request.form.get("county")
         return render_template("chart.html", county=county)
-    return render_template('chart.html', county='All counties')
+    return render_template("chart.html", county="All counties")
+
 
 @app.route("/plot.json/<county>")
 def plot_layered(county):
@@ -278,10 +353,11 @@ def plot_layered(county):
         (.json str): A string of the plot configuration
     """
     chart = plot_both(county)
-    tmp = tempfile.NamedTemporaryFile(suffix='.json')
+    tmp = tempfile.NamedTemporaryFile(suffix=".json")
     chart.save(tmp.name)
     with open(tmp.name) as file:
         return file.read()
+
 
 @app.route("/norway_plot")
 def plot_norway():
@@ -291,7 +367,8 @@ def plot_norway():
     Returns:
         render_template: Renders the template with the generated json map plot
     """
-    return render_template('map.html')
+    return render_template("map.html")
+
 
 @app.route("/norway_plot.json")
 def plot_norway_get_json():
@@ -302,16 +379,18 @@ def plot_norway_get_json():
         (.json str): a string of the plot configuration
     """
     map = norway_plot()
-    tmp = tempfile.NamedTemporaryFile(suffix='.json')
+    tmp = tempfile.NamedTemporaryFile(suffix=".json")
     map.save(tmp.name)
     with open(tmp.name) as file:
         return file.read()
 
-#documentation
-@app.route('/help')
-@app.route('/<path:path>')
-def serve_sphinx_docs(path='index.html'):
+
+# documentation
+@app.route("/help")
+@app.route("/<path:path>")
+def serve_sphinx_docs(path="index.html"):
     return app.send_static_file(path)
 
-if __name__ =="__main__":
+
+if __name__ == "__main__":
     app.run(debug=True)
