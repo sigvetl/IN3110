@@ -1,30 +1,18 @@
 # IN3110-sigvetl
 
-#Assignment3
-
-The tests listed in test.Array.py are run using pytest.
-
-Run the tests by typing pytest from the directory containing the .py files
+A collection of scripts, modules and packages in bash and python.
 
 #Assignment4
+A package that transforms a picture into a grayscale or sepia version of the original image.
+The user can select which implementation to use between numpy, numba and a python looping implementation.
+There are also options to scale the image and choosing outfile.
 
-The files in the folder toGray are the files for assignment 4.1
-.py files are run using python3 'version'_color2gray.py
-the .txt files are manually written
+#Assignment5
+Different modules using get-requests to web-scrape wikipedia.
+The largest module scrapes the pages of the 8 playoff teams of the NBA 2020-playoffs
+and plots the three best players of each team grouped by team with regards to the categories
+`Points per game`, `Rebounds per game` and `Blocks per game`
 
-The files in the folder toSepia are the files for assignment 4.2
-.py files are run using python3 'version'_color2sepia.py
-the .txt files are manually written
-
-test_instapy.py can be run using pytest test_instapy.py
-The file contains three unit tests. One does a test of a pixel in the different implementations
-of _color2sepia. One does a test of a pixel in the different implementations of _color2gray.
-The last tests the shape of the array returned by numpy_color2gray and numpy_color2sepia against
-the expected values
-
-The folder instapy contains the package instapy. To install - change directory to the folder instapy and type
-pip install .
-The script runs on my own machine using instapy -f FILE -se/-g
-To run on linux, have anaconda installed and source .bashrc before running the script as above
-
-There are some issues with the -h flag
+#Assignment6
+A script using pandas, altair and flask to create plots using FHI-statistics of reported 
+and cumulative covid cases. The created plots are then visualized on the web-page.
