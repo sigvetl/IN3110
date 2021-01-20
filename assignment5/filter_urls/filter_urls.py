@@ -68,11 +68,10 @@ def write_to_file(list_of_links, name):
         f.write(link + "\n")
     f.close()
 
-"""
-nobel_prize = get_html("https://en.wikipedia.org/wiki/Nobel_Prize")
-bundesliga = get_html("https://en.wikipedia.org/wiki/Bundesliga")
-fis = get_html("https://en.wikipedia.org/wiki/2019%E2%80%9320_FIS_Alpine_Ski_ World_Cup")
-nobel_articles = find_articles(nobel_prize, "https://en.wikipedia.org", 'nobel_prize.txt')
-bundes_articles = find_articles(bundesliga, "https://en.wikipedia.org", 'bundesliga.txt')
-fis_articles = find_articles(fis, "https://en.wikipedia.org", 'fis.txt')
-"""
+if __name__ == "__main__":
+    nobel_prize = get_html("https://en.wikipedia.org/wiki/Nobel_Prize")
+    bundesliga = get_html("https://en.wikipedia.org/wiki/Bundesliga")
+    fis = get_html("https://en.wikipedia.org/wiki/2019%E2%80%9320_FIS_Alpine_Ski_ World_Cup")
+    nobel_articles = find_articles(nobel_prize, "https://en.wikipedia.org", 'nobel_prize.txt')
+    bundes_articles = find_articles(bundesliga, "https://en.wikipedia.org", 'bundesliga.txt')
+    fis_articles = find_articles(fis, "https://en.wikipedia.org", 'fis.txt')

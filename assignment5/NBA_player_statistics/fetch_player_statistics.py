@@ -138,84 +138,83 @@ def filter_top_3(url):
         url (array.pyi): 3d list containing team-name and [player-name, stats]
 
     Return:
-        array: Sorted 3d list containing team-name and [player-name, stats]
+        array: Sorted 2d list containing player objects
                 for top 3 players for each team
     """
     team_urls = extract_teams(url)
     player_urls = get_player_links(team_urls)
     player_stats = get_player_stats(player_urls)
-    all = []
+    best_players = []
     for i in range(len(player_stats)):
         sorted_list = sorted(player_stats[i][1:], key=lambda x: x[3], reverse=True)
-        all.append([player_stats[i][0], sorted_list[0], sorted_list[1], sorted_list[2]])
+        player_list = [Player(player_stats[i][0], sorted_list[j][0], sorted_list[j][3], sorted_list[j][2], sorted_list[j][1]) for j in range(3)]
+        best_players.append(player_list)
 
-    bar_plot(all, 3, 'Points per game', 'PPG', 'players_over_ppg.png')
-    bar_plot(all, 2, 'Blocks per game', 'BPG', 'players_over_bpg.png')
-    bar_plot(all, 1, 'Rebounds per game', 'RPG', 'players_over_rpg.png')
-    return all
+    bar_plot(best_players, 'ppg')
+    bar_plot(best_players, 'bpg')
+    bar_plot(best_players, 'rpg')
+    return best_players
 
+class Player():
+    """
+    Player class to store information of a NBA player in a clear way.
 
+    Attributes:
+        team_name (str): Name of team the player belongs to.
+        player_name (str): Name of the player.
+        ppg (float): Player's score in points per game category.
+        bpg (float): Player's score in blocks per game category.
+        rpg (float): Player's score in rebounds per game category.
+    """
 
-def bar_plot(best_players, index, title, type, file):
+    def __init__(self, team, player_name, ppg, bpg, rpg):
+        """
+        Initiates class instance.
+        Args:
+            team (str): Name of team the player belongs to.
+            player_name (str): Name of the player.
+            ppg (float): Player's score in points per game category.
+            bpg (float): Player's score in blocks per game category.
+            rpg (float): Player's score in rebounds per game category.
+        """
+        self.team_name = team
+        self.player_name = player_name
+        self.ppg = ppg
+        self.bpg = bpg
+        self.rpg = rpg
+
+def bar_plot(best_players, key):
     """
     Creates a list for the stat to be plotted for each team and plots the data grouped by team
-    I struggled with the player-ticks and have set the teamlabels as ticks in
 
     Args:
-        best_players (array): 3d list of 3 best players for each team,
-        index (int): the index that fetches the right column
-        title (string): title of the y-axis,
+        best_players (array): 2d list of 3 best player-objects for each team,
         type (string): the abbrievation to be concatenated with the title
-        file (string): filename for storage of the file
     """
-    teamlabels = []
-    playerlabels = []
-    teams = []
 
-    for i in range(len(best_players)):
-        teamlabels.append(best_players[i][0])
-        team = []
-        for j in range(len(best_players[i])-1):
-            playerlabels.append(best_players[i][j+1][0])
-            team.append(best_players[i][j+1][index])
-        teams.append(team)
+    tick_vals = []  # need to store x values for bars for xticks to work
+    tick_labels = []  # need to store bar labels for xticks to work
 
-    x = np.arange(len(teamlabels))  # the label locations
-    width = 0.25  # distance between bars
-    widthbar = 0.2 #width of bars
+    for i, team in enumerate(best_players):
+        x = np.linspace(i+1, i+2, 3) + i  # x values for plotting
+        # scores: get scores from each Player class object's attribute:
+        scores = [getattr(player, key) for player in team]
+        # names: get names from each Player class object's attribute:
+        names = [player.player_name for player in team]
+        #print("Plotting " + names + " with " + scores + " at index " + x)
+        plt.bar(x, scores, 0.3, label=team[0].team_name)
+        tick_vals.extend(x.tolist())  # add x values to list
+        tick_labels.extend(names)  # add player names to list
 
-    fig, ax = plt.subplots()
-    rects = []
-    for i in range(len(teams)):
-        rect = ax.bar([i-width, i, i+width], teams[i], widthbar, label=best_players[i][0])
-        rects.append(rect)
-
-    ax.set(xlim=(-0.5, 10.5))
-    ax.set_ylabel(title)
-    ax.set_title(type +' in RS(19-20) for top 3 players of conference semifinalists')
-    ax.set_xticks(x)
-    ax.tick_params(labelrotation=90)
-    ax.set_xticklabels(teamlabels)
-    ax.legend()
-
-    def autolabel(rects):
-        """Attach a text label above each bar in *rects*, displaying its height."""
-        for rect in rects:
-            height = rect.get_height()
-            ax.annotate('{}'.format(height),
-                        xy=(rect.get_x() + rect.get_width() /2, height),
-                        xytext=(0, 3),  # 3 points vertical offset
-                        textcoords="offset points",
-                        ha='center', va='bottom')
-    for rect in rects:
-        autolabel(rect)
-
-    fig.tight_layout()
-
-    plt.savefig(file)
-
-    plt.show()
-
+    plt.xticks(tick_vals, tick_labels, rotation='vertical')
+    plt.subplots_adjust(bottom=0.2)  # tweak spacing to prevent clipping of tick-labels
+    plt.ylabel(key)
+    plt.title(f"{key} in RS(19-20) for top 3 players of conference semifinalists")
+    plt.legend()
+    plt.gcf().set_size_inches(12.8, 9.6)
+    plt.savefig(f"players_over_{key}.png")
+    plt.clf()
 
 url = "https://en.wikipedia.org/wiki/2020_NBA_playoffs"
-best_players = filter_top_3(url)
+if __name__ == "__main__":
+    best_players = filter_top_3(url)

@@ -17,17 +17,16 @@ def get_html(url, params=None, output=None):
 
     assert r.status_code == 200
 
-    if output is not None:
+    if output:
         f = open(output, "w")
         f.write(r.url)
         f.write(r.text)
         f.close()
     return r.text
 
-"""
-studio_ghibli = get_html("https://en.wikipedia.org/wiki/Studio_Ghibli", output="studio_ghibli.txt")
-star_wars = get_html("https://en.wikipedia.org/wiki/Star_Wars", output="star_wars.txt")
-dungeons_and_dragons = get_html("https://en.wikipedia.org/wiki/Dungeons_%26_Dragons", output="dungeons_and_dragons.txt")
-main_info = get_html("https://en.wikipedia.org/w/index.php", {"title":"Main_Page", "action":"info"}, "main_info.txt")
-hurricane_gonzalo = get_html("https://en.wikipedia.org/w/index.php", {"title":"Hurricane Gonzalo", "oldid":"983056166"}, "hurricane_gonzalo.txt")
-"""
+if __name__ == "__main__":
+    studio_ghibli = get_html("https://en.wikipedia.org/wiki/Studio_Ghibli", output="studio_ghibli.txt")
+    star_wars = get_html("https://en.wikipedia.org/wiki/Star_Wars", output="star_wars.txt")
+    dungeons_and_dragons = get_html("https://en.wikipedia.org/wiki/Dungeons_%26_Dragons", output="dungeons_and_dragons.txt")
+    main_info = get_html("https://en.wikipedia.org/w/index.php", {"title":"Main_Page", "action":"info"}, "main_info.txt")
+    hurricane_gonzalo = get_html("https://en.wikipedia.org/w/index.php", {"title":"Hurricane Gonzalo", "oldid":"983056166"}, "hurricane_gonzalo.txt")

@@ -79,8 +79,8 @@ def extract_events(url):
     f.close()
 
 
-#table = format_table(url)
 url2020 = "https://en.wikipedia.org/wiki/2020%E2%80%9321_FIS_Alpine_Ski_World_Cup"
 url2019 = "https://en.wikipedia.org/wiki/2019%E2%80%9320_FIS_Alpine_Ski_World_Cup"
-extract_events(url2020)
-extract_events(url2019)
+if __name__ == "__main__":
+    extract_events(url2020)
+    extract_events(url2019)
